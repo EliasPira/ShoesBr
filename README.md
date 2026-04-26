@@ -7,7 +7,7 @@ Este projeto modela os dados de um e-commerce fictício chamado **ShoesBR**, uti
 
 ## 🎯 Objetivo do Projeto
 
-O objetivo deste projeto é construir um **Data Warehouse analítico**, organizado em camadas conforme as boas práticas recomendadas pelo **dbt**. A arquitetura proposta permitirá análises confiáveis e estruturadas sobre **clientes, produtos, vendas e estornos**.
+O objetivo deste projeto é construir um **Data Warehouse analítico**, organizado em camadas conforme as boas práticas recomendadas pelo **dbt**. A arquitetura proposta permitirá análises confiáveis e estruturadas.
 
 Além disso, o projeto oferece aos alunos uma visão completa **End-to-End (E2E)** — desde a modelagem e transformação dos dados até o deploy e agendamento no ambiente em nuvem.
 
@@ -102,9 +102,11 @@ Para executar este projeto, você precisará ter o seguinte ambiente configurado
   Instale com o comando:  
   ```bash
   pip install dbt-postgres
+  ```
+
 ## 🚀 Deploy
 
-O deploy será realizado por meio do **dbt Cloud (plano gratuito)**, utilizando uma instância **RDS na AWS** também dentro da camada **Free Tier**. Essa abordagem permite orquestrar e agendar execuções dos modelos dbt de forma prática, sem custos adicionais no ambiente de desenvolvimento.
+O deploy será realizado por meio do **dbt Cloud (plano gratuito)**, utilizando uma instância **RDS na AWS** também dentro da camada **Free Tier**. Essa abordagem permite orquestrar e agendar execuções de forma segura e escalável.
 
 ---
 
@@ -118,6 +120,3 @@ Este projeto é uma simulação educacional voltada para ensino e prática de en
 - Join the [chat](https://community.getdbt.com/) on Slack for live discussions and support
 - Find [dbt events](https://events.getdbt.com) near you
 - Check out [the blog](https://blog.getdbt.com/) for the latest news on dbt's development and best practices
-#   S h o e s B r 
- 
- 
