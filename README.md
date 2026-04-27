@@ -1,122 +1,212 @@
-# 🛍️ Projeto dbt - ShoesBR
 
-Este projeto modela os dados de um e-commerce fictício chamado **ShoesBR**, utilizando o **Data Build Tool (dbt)** para transformar, documentar e testar os dados de forma estruturada e analítica.
+# 🛍️ Projeto dbt — ShoesBR
+
+Este projeto modela os dados de um e-commerce fictício chamado **ShoesBR**, utilizando o **Data Build Tool (dbt)** para transformar, documentar e testar dados de forma estruturada, modular e analítica.
+
+O objetivo é oferecer uma visão completa **End-to-End (E2E)** do fluxo de engenharia de dados: desde a ingestão e modelagem até o deploy, documentação e orquestração em nuvem.
+
+---
+
+# 🎯 Objetivo do Projeto
+
+Construir um **Data Warehouse analítico** organizado em camadas, seguindo as boas práticas recomendadas pela dbt Labs.  
+A arquitetura proposta permite:
+
+- Transparência nas transformações  
+- Reprodutibilidade  
+- Testes automatizados  
+- Documentação viva  
+- Deploy e agendamento em nuvem  
+
+Este projeto também serve como material educacional para estudantes de engenharia de dados.
 
 ---
 
+# 📁 Fontes de Dados
 
-## 🎯 Objetivo do Projeto
+Na pasta `shoesbr/scripts-sql` estão os scripts responsáveis pela criação das tabelas utilizadas no projeto.
 
-O objetivo deste projeto é construir um **Data Warehouse analítico**, organizado em camadas conforme as boas práticas recomendadas pelo **dbt**. A arquitetura proposta permitirá análises confiáveis e estruturadas.
-
-Além disso, o projeto oferece aos alunos uma visão completa **End-to-End (E2E)** — desde a modelagem e transformação dos dados até o deploy e agendamento no ambiente em nuvem.
-
+> **Observação:** A tabela de **estornos** é materializada a partir de um arquivo CSV localizado na pasta `seeds/`.
 
 ---
-## 📁 Fontes de dados
 
-Na pasta `shoesbr\scripts-sql`, estão disponíveis os scripts responsáveis pela criação das tabelas que serão utilizadas ao longo deste projeto.
-
-> **Observação:** A tabela de reembolsos será materializada a partir dos dados presentes na pasta `seed`.
-
-
----
-## 🧬 Diagrama Relacional das Tabelas de Origem
+# 🧬 Diagrama Relacional das Tabelas de Origem
 
 ![](scripts-sql/diagrama.png)
 
+---
 
-## 🧱 Boas Práticas por Camada no dbt
+# 🧱 Boas Práticas por Camada no dbt
 
 ## 🔹 Camada `staging`
 
-| Prática recomendada                       | Descrição                                                                 |
-|-------------------------------------------|---------------------------------------------------------------------------|
-| Prefixo `stg_` nos modelos                | Nomeie os modelos como `stg_<nome_tabela>`                               |
-| Seleção explícita de colunas              | Evite `SELECT *`; selecione e renomeie as colunas manualmente            |
-| Padronização de nomes                     | Use `snake_case` e nomes consistentes como `order_id`, `customer_id`     |
-| Limpeza básica                            | Remova duplicatas, trate nulos e converta tipos quando necessário        |
-| Sem regras de negócio                     | Deixe regras complexas para camadas `intermediate` ou `marts`            |
-| Uso de `source()`                         | Sempre referencie dados brutos com `source('fonte', 'tabela')`           |
-| Organização por fonte                     | Estruture os modelos em subpastas por origem dentro de `models/staging/` |
-| Inclusão de testes                        | Aplique testes de unicidade, nulos e integridade                         |
-| Documentação dos modelos                  | Use arquivos `.yml` para descrever campos e tabelas                      |
+| Prática recomendada | Descrição |
+|---------------------|-----------|
+| Prefixo `stg_` | Nomeie os modelos como `stg_<tabela>` |
+| Seleção explícita | Evite `SELECT *` |
+| Padronização | Use `snake_case` |
+| Limpeza básica | Trate nulos, tipos e duplicatas |
+| Sem regras de negócio | Apenas padronização |
+| Uso de `source()` | Referencie dados brutos |
+| Organização por fonte | Subpastas por origem |
+| Testes | Unicidade, nulos, integridade |
+| Documentação | `.yml` descrevendo tabelas e colunas |
 
 ---
 
 ## 🔸 Camada `intermediate`
 
-| Prática recomendada                         | Descrição                                                                 |
-|---------------------------------------------|---------------------------------------------------------------------------|
-| Prefixo `int_` nos modelos                  | Nomeie os modelos como `int_<entidade>`                                   |
-| Combinação de dados                         | Faça joins, merges e enriquecimentos entre várias tabelas                 |
-| Criação de entidades derivadas              | Crie entidades intermediárias como `orders_enriched`, `active_customers` |
-| Separação de responsabilidades              | Mantenha uma transformação por modelo sempre que possível                 |
-| Simplificação para os marts                 | Prepare modelos limpos e organizados para uso direto nos marts            |
-| Reutilização e manutenção                   | Centralize lógicas complexas para evitar duplicidade em modelos finais    |
-| Uso de `ref()` para `stg_`                  | Sempre referencie os modelos `staging` via `ref('stg_xxx')`               |
+| Prática recomendada | Descrição |
+|---------------------|-----------|
+| Prefixo `int_` | Nomeie como `int_<entidade>` |
+| Joins e enriquecimentos | Combinação de dados |
+| Entidades derivadas | Ex.: `orders_enriched` |
+| Separação de responsabilidades | Uma transformação por modelo |
+| Preparação para marts | Dados limpos e organizados |
+| Uso de `ref()` | Referencie modelos `stg_` |
 
 ---
 
 ## 🟢 Camada `marts`
 
-| Prática recomendada                       | Descrição                                                                  |
-|-------------------------------------------|----------------------------------------------------------------------------|
-| Prefixo `fct_`, `dim_`, `report_`         | Use `fct_` para fatos, `dim_` para dimensões, `report_` para relatórios    |
-| Modelos prontos para o negócio            | Cada modelo deve ser útil diretamente para o analista ou consumidor final |
-| Cálculos e KPIs finais                    | Faça agregações, métricas e cálculos de negócio                           |
-| Uso de `ref()` para `int_` e `dim_`       | Referencie modelos intermediários ou dimensões derivadas                  |
-| Nomeação clara e orientada ao domínio     | Nomeie modelos conforme as entidades do negócio                           |
-| Organização por áreas de negócio          | Separe os modelos por temas: vendas, finanças, marketing etc.             |
-| Modelos versionáveis                      | Mantenha versões (ex: `fct_sales_v1`) se precisar evoluir sem quebrar     |
+| Prática recomendada | Descrição |
+|---------------------|-----------|
+| Prefixos `fct_`, `dim_`, `report_` | Fatos, dimensões e relatórios |
+| Modelos orientados ao negócio | Prontos para consumo |
+| KPIs e métricas | Agregações finais |
+| Uso de `ref()` | Referencie `int_` e `dim_` |
+| Nomeação clara | Termos do domínio |
+| Organização por área | Vendas, finanças, marketing |
+| Versionamento | Ex.: `fct_sales_v1` |
 
 ---
 
-## 🧩 Comparativo entre Camadas
+# 🧩 Comparativo entre Camadas
 
-| Aspecto                       | staging                         | intermediate                          | marts                                 |
-|------------------------------|----------------------------------|----------------------------------------|----------------------------------------|
-| Prefixo                      | `stg_`                           | `int_`                                 | `fct_`, `dim_`, `report_`              |
-| Fonte de dados               | `source()`                       | `ref(stg_)`                            | `ref(int_)`, `ref(dim_)`              |
-| Tipo de transformação        | Limpeza e padronização           | Joins, enriquecimentos, lógicas        | Métricas, agregações, KPIs            |
-| Complexidade da lógica       | Baixa                            | Média                                   | Alta                                   |
-| Público alvo                 | Interno (engenharia)             | Interno (engenharia/analytics)         | Final (análise/negócio)                |
-| Objetivo principal           | Padronizar dados brutos          | Preparar dados relacionais e reutilizáveis | Responder perguntas de negócio     |
-| Organização recomendada      | Por fonte                        | Por entidade                           | Por área de negócio                    |
-
-[Fonte - dbtLabs](https://docs.getdbt.com/best-practices/how-we-structure/1-guide-overview)
+| Aspecto | staging | intermediate | marts |
+|---------|---------|--------------|--------|
+| Prefixo | `stg_` | `int_` | `fct_`, `dim_`, `report_` |
+| Fonte | `source()` | `ref(stg_)` | `ref(int_)` |
+| Transformação | Padronização | Enriquecimento | Métricas |
+| Complexidade | Baixa | Média | Alta |
+| Público | Engenharia | Engenharia/Analytics | Negócio |
+| Objetivo | Limpeza | Preparação | Resposta a perguntas |
+| Organização | Por fonte | Por entidade | Por área |
 
 ---
 
-## ✅ Pré-requisitos
+# ✅ Pré-requisitos
 
-Para executar este projeto, você precisará ter o seguinte ambiente configurado:
-
-- 🐍 **Python 3.8+** – [Download](https://www.python.org/downloads/)
-- 🐘 **PostgreSQL via RDS (AWS)** ou outro banco compatível
-- 💻 **DBeaver** (cliente SQL opcional para explorar dados) – [Download](https://dbeaver.io/download/)
-- ☁️ **Conta gratuita no dbt Cloud** – [Criar conta](https://cloud.getdbt.com/signup/)
-- 🛠️ **Git** – necessário para versionamento e integração com o dbt Cloud - [Download](https://git-scm.com/downloads)
-- 🐙 **Conta no GitHub** – necessária para hospedar o repositório do projeto e integrar ao dbt Cloud [Criar conta](https://github.com/join)
-- 📦 **Pacote `dbt-postgres` versão 1.9 ou superior**  
-  Instale com o comando:  
+- 🐍 **Python 3.8+**  
+- 🐘 **PostgreSQL (RDS AWS ou local)**  
+- 💻 **DBeaver** (opcional)  
+- ☁️ **Conta no dbt Cloud**  
+- 🛠️ **Git**  
+- 🐙 **GitHub**  
+- 📦 **dbt-postgres 1.9+**  
   ```bash
   pip install dbt-postgres
   ```
 
-## 🚀 Deploy
+---
 
-O deploy será realizado por meio do **dbt Cloud (plano gratuito)**, utilizando uma instância **RDS na AWS** também dentro da camada **Free Tier**. Essa abordagem permite orquestrar e agendar execuções de forma segura e escalável.
+# ⚙️ Execução Local com dbt Core
+
+## 🔧 1. Configurar o profile
+
+Crie o arquivo:
+
+```
+~/.dbt/profiles.yml
+```
+
+Com o conteúdo:
+
+```yaml
+shoesbr:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: <seu_host>
+      user: <seu_usuario>
+      password: <sua_senha>
+      port: 5432
+      dbname: shoesbr
+      schema: staging
+      threads: 4
+```
+
+## ▶️ 2. Rodar o projeto
+
+```bash
+dbt debug
+dbt deps
+dbt seed
+dbt run
+dbt test
+```
+
+## 📦 3. Executar modelos específicos
+
+```bash
+dbt run --select stg_clientes
+dbt test --select tag:finance
+```
+
+## 🧪 4. Gerar documentação local
+
+```bash
+dbt docs generate
+dbt docs serve
+```
 
 ---
 
-## 👟 Sobre o Projeto
+# ☁️ Orquestração no dbt Cloud
 
-Este projeto é uma simulação educacional voltada para ensino e prática de engenharia de dados com dbt. A marca **ShoesBR** é fictícia.
+A orquestração deste projeto é realizada no **dbt Cloud (plano gratuito)**, utilizando:
 
-### Resources:
-- Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)
-- Check out [Discourse](https://discourse.getdbt.com/) for commonly asked questions and answers
-- Join the [chat](https://community.getdbt.com/) on Slack for live discussions and support
-- Find [dbt events](https://events.getdbt.com) near you
-- Check out [the blog](https://blog.getdbt.com/) for the latest news on dbt's development and best practices
+### ✔ Um Job configurado com os passos:
+- `dbt source freshness`
+- `dbt seed`
+- `dbt run`
+- `dbt test`
+- `Generate Docs`
+- `Upload Docs`
+
+### ✔ Benefícios:
+- Execuções automatizadas  
+- Histórico de runs  
+- Alertas e logs  
+- Documentação sempre atualizada  
+
+---
+
+# 📘 Documentação do Projeto
+
+A documentação completa — incluindo DAG, fontes, modelos, testes e freshness — está disponível no link permanente abaixo:
+
+👉 **[https://bg153.us1.dbt.com/accounts/269872/jobs/1043022/docs/#!/overview](https://bg153.us1.dbt.com/accounts/269872/jobs/1043022/docs/#!/overview)**
+
+Esse link é atualizado automaticamente a cada execução do job.
+
+---
+
+# 👟 Sobre o Projeto
+
+Este projeto é uma simulação educacional voltada para ensino e prática de engenharia de dados com dbt.  
+A marca **ShoesBR** é fictícia.
+
+---
+
+# 📚 Recursos
+
+- Documentação oficial: [https://docs.getdbt.com/docs/introduction](https://docs.getdbt.com/docs/introduction)  
+- Comunidade: [https://community.getdbt.com](https://community.getdbt.com)  
+- Fórum: [https://discourse.getdbt.com](https://discourse.getdbt.com)  
+- Eventos: [https://events.getdbt.com](https://events.getdbt.com)  
+- Blog: [https://blog.getdbt.com](https://blog.getdbt.com)  
+```
+
+---
